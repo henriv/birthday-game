@@ -61,6 +61,9 @@ export default function BirthdayGame() {
       setUserInput('');
     }
   }, [roundActive]);
+
+  // Countdown timer
+  useEffect(() => {
     if (!roundActive) return;
 
     if (!countdownRef.current) {
