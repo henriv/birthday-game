@@ -18,73 +18,78 @@ export default function BirthdayGame() {
   const [currentPlayerId, setCurrentPlayerId] = useState(null);
   const [roundStartTime, setRoundStartTime] = useState(null);
 
-  const wsRef = useRef(null);
   const textInputRef = useRef(null);
   const countdownRef = useRef(null);
+  const pollingRef = useRef(null);
 
   const ORGANIZER_PIN = '1234';
 
-  // Initialize WebSocket
+  // Fetch game state from API
+  const fetchGameState = async () => {
+    try {
+      const response = await fetch('/api/socket');
+      const data = await response.json();
+      setPlayers(data.players);
+      setCorrectText(data.correctText);
+      setRoundActive(data.roundActive);
+      setRoundStartTime(data.roundStartTime);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  };
+
+  // Start polling for updates
   useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    fetchGameState();
 
-    wsRef.current = new WebSocket(wsUrl);
-
-    wsRef.current.onopen = () => {
-      console.log('WebSocket connected');
-    };
-
-    wsRef.current.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
-      if (message.type === 'initial-state' || message.type === 'game-state-update') {
-        const data = message.data;
-        setPlayers(data.players);
-        setCorrectText(data.correctText);
-        setRoundActive(data.roundActive);
-        setRoundStartTime(data.roundStartTime);
-
-        // Start countdown if round is active
-        if (data.roundActive && !countdownRef.current) {
-          startCountdown(data.roundStartTime);
-        }
-      }
-    };
-
-    wsRef.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
+    pollingRef.current = setInterval(() => {
+      fetchGameState();
+    }, 500); // Poll every 500ms
 
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      if (countdownRef.current) {
-        clearInterval(countdownRef.current);
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
       }
     };
   }, []);
 
   // Countdown timer
-  const startCountdown = (startTime) => {
-    if (countdownRef.current) clearInterval(countdownRef.current);
+  useEffect(() => {
+    if (!roundActive) return;
 
-    countdownRef.current = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      const remaining = Math.max(0, 180 - elapsed);
-      setCountdownSeconds(remaining);
+    if (!countdownRef.current) {
+      let seconds = 180;
+      countdownRef.current = setInterval(() => {
+        setCountdownSeconds(seconds);
+        seconds--;
+        if (seconds < 0) {
+          clearInterval(countdownRef.current);
+          countdownRef.current = null;
+        }
+      }, 1000);
+    }
 
-      if (remaining === 0) {
+    return () => {
+      if (countdownRef.current) {
         clearInterval(countdownRef.current);
+        countdownRef.current = null;
       }
-    }, 1000);
-  };
+    };
+  }, [roundActive]);
 
-  // Send WebSocket message
-  const sendMessage = (type, data) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type, ...data }));
+  // Send message to API
+  const sendMessage = async (type, data) => {
+    try {
+      const response = await fetch('/api/socket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, ...data }),
+      });
+      const result = await response.json();
+      await fetchGameState(); // Fetch updated state
+      return result;
+    } catch (error) {
+      console.error('Send error:', error);
     }
   };
 
@@ -93,7 +98,6 @@ export default function BirthdayGame() {
     if (organizerPin === ORGANIZER_PIN) {
       setIsAdmin(true);
       setGameState('organizer-setup');
-      sendMessage('register-admin');
     } else {
       alert('Invalid PIN');
     }
@@ -103,11 +107,11 @@ export default function BirthdayGame() {
   // Handle player join
   const handlePlayerJoin = () => {
     if (!playerName.trim()) return;
-    setCurrentPlayerId(Date.now());
+    const playerId = Date.now();
+    setCurrentPlayerId(playerId);
     sendMessage('register-player', { playerName });
-    setGameState('player-join');
-    setPlayerName('');
     setGameState('waiting');
+    setPlayerName('');
   };
 
   // Handle set correct text
@@ -133,7 +137,7 @@ export default function BirthdayGame() {
   // Handle submit answer
   const handleSubmitResponse = () => {
     if (!userInput.trim() || !roundActive) return;
-    sendMessage('submit-answer', { response: userInput });
+    sendMessage('submit-answer', { response: userInput, playerId: currentPlayerId });
     setUserInput('');
     setSubmitted(true);
   };
@@ -145,9 +149,11 @@ export default function BirthdayGame() {
 
   // Handle reset game
   const handleResetGame = () => {
-    sendMessage('reset-game');
+    sendMessage('reset');
     setIsAdmin(false);
     setGameState('welcome');
+    setPlayers([]);
+    setCorrectText('');
   };
 
   // Format time
@@ -260,9 +266,9 @@ export default function BirthdayGame() {
                 <h3 className="font-bold text-gray-700 mb-3 flex items-center justify-center gap-2">
                   <Users size={20} /> Players ({players.length})
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-2 min-h-12">
                   {players.map((player) => (
-                    <div key={player.id} className="bg-gray-100 px-3 py-2 rounded text-gray-800">
+                    <div key={player.id} className="bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-2 rounded text-gray-800 font-semibold">
                       {player.name}
                     </div>
                   ))}
@@ -322,9 +328,9 @@ export default function BirthdayGame() {
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="font-bold text-gray-700 mb-2">Players Joined: {players.length}</p>
-                <div className="space-y-2">
+                <div className="space-y-2 min-h-12">
                   {players.map((p) => (
-                    <div key={p.id} className="bg-gray-100 px-3 py-1 rounded text-gray-800 text-sm">
+                    <div key={p.id} className="bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-1 rounded text-gray-800 text-sm font-semibold">
                       {p.name}
                     </div>
                   ))}
@@ -368,9 +374,9 @@ export default function BirthdayGame() {
               {roundActive && (
                 <div className="bg-red-100 border-2 border-red-500 rounded-lg p-4 text-center">
                   <p className="text-red-800 font-bold">Round is ACTIVE</p>
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-4 space-y-2 max-h-40 overflow-y-auto">
                     {players.map((p) => (
-                      <div key={p.id} className={`p-2 rounded ${p.submittedAt ? 'bg-green-200' : 'bg-yellow-200'}`}>
+                      <div key={p.id} className={`p-2 rounded font-semibold ${p.submittedAt ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
                         {p.name}: {p.submittedAt ? '✓ Submitted' : '⏳ Typing...'}
                       </div>
                     ))}
@@ -396,7 +402,7 @@ export default function BirthdayGame() {
         )}
 
         {/* Leaderboard */}
-        {!roundActive && players.length > 0 && gameState !== 'welcome' && gameState !== 'player-join' && (
+        {!roundActive && players.length > 0 && gameState === 'waiting' && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <div className="text-6xl text-center">🏆</div>
             <h2 className="text-3xl font-bold text-gray-800 text-center">Results!</h2>
