@@ -483,46 +483,58 @@ export default function BirthdayGame() {
                   if (a.errors !== b.errors) return a.errors - b.errors;
                   return (a.submittedAt || Infinity) - (b.submittedAt || Infinity);
                 })
-                .map((player, idx) => (
-                  <div
-                    key={player.id}
-                    className={`p-4 rounded-lg space-y-2 ${
-                      idx === 0
-                        ? 'bg-yellow-100 border-2 border-yellow-400'
-                        : idx === 1
-                        ? 'bg-gray-100 border-2 border-gray-400'
-                        : idx === 2
-                        ? 'bg-orange-100 border-2 border-orange-400'
-                        : 'bg-gray-50 border-2 border-gray-200'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-bold text-gray-800">#{idx + 1} {player.name}</p>
-                        <p className="text-sm text-gray-600">Errors: {player.errors}</p>
-                      </div>
-                      <p className="text-2xl font-bold text-gray-800">{calculateScore(player)} pts</p>
-                    </div>
+                .map((player, idx) => {
+                  const isCurrentPlayer = player.name === currentPlayerName;
+                  return (
+                    <div key={player.id}>
+                      <div
+                        className={`p-4 rounded-lg space-y-2 ${
+                          isCurrentPlayer
+                            ? 'bg-blue-100 border-2 border-blue-400'
+                            : idx === 0
+                            ? 'bg-yellow-100 border-2 border-yellow-400'
+                            : idx === 1
+                            ? 'bg-gray-100 border-2 border-gray-400'
+                            : idx === 2
+                            ? 'bg-orange-100 border-2 border-orange-400'
+                            : 'bg-gray-50 border-2 border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-bold text-gray-800">
+                              #{idx + 1} {player.name}
+                              {isCurrentPlayer && ' (You)'}
+                            </p>
+                            <p className="text-sm text-gray-600">Errors: {player.errors}</p>
+                          </div>
+                          <p className="text-2xl font-bold text-gray-800">{calculateScore(player)} pts</p>
+                        </div>
 
-                    {/* Show player's response with mistakes */}
-                    <div className="mt-3 pt-3 border-t border-gray-300 space-y-2">
-                      <p className="text-xs font-bold text-gray-600">YOUR RESPONSE:</p>
-                      <div className="bg-white p-3 rounded border-2 border-red-300">
-                        <p className="font-mono text-sm relative">
-                          {/* Strikethrough response */}
-                          <span className="inline-block relative">
-                            {player.response || '(no response)'}
-                            <span className="absolute left-0 top-1/2 w-full h-0.5 bg-red-500"></span>
-                          </span>
-                        </p>
-                        {/* Correct text above */}
-                        <p className="font-mono text-sm text-green-700 font-bold mt-1">
-                          ✓ {correctText}
-                        </p>
+                        {/* Show response with mistakes */}
+                        <div className="mt-3 pt-3 border-t border-gray-300 space-y-2">
+                          <p className="text-xs font-bold text-gray-600">
+                            {isCurrentPlayer ? 'YOUR RESPONSE:' : `${player.name.toUpperCase()}'S RESPONSE:`}
+                          </p>
+                          <div className="bg-white p-3 rounded border-2 border-red-300">
+                            <p className="font-mono text-sm relative">
+                              {/* Strikethrough response */}
+                              <span className="inline-block relative">
+                                {player.response || '(no response)'}
+                                <span className="absolute left-0 top-1/2 w-full h-0.5 bg-red-500"></span>
+                              </span>
+                            </p>
+                            {/* Correct text above */}
+                            <p className="font-mono text-sm text-green-700 font-bold mt-1">
+                              ✓ {correctText}
+                            </p>
+                          </div>
+                        </div>
                       </div>
+                      {idx < players.length - 1 && <div className="border-t-2 border-gray-300"></div>}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
 
             <p className="text-center text-gray-600 text-sm">Waiting for organizer to start next round...</p>
@@ -569,7 +581,7 @@ export default function BirthdayGame() {
 
                     {/* Show player's response with mistakes */}
                     <div className="mt-3 pt-3 border-t border-gray-300 space-y-2">
-                      <p className="text-xs font-bold text-gray-600">THEIR RESPONSE:</p>
+                      <p className="text-xs font-bold text-gray-600">{player.name.toUpperCase()}'S RESPONSE:</p>
                       <div className="bg-white p-3 rounded border-2 border-red-300">
                         <p className="font-mono text-sm relative">
                           {/* Strikethrough response */}
