@@ -273,7 +273,7 @@ export default function BirthdayGame() {
         )}
 
         {/* Waiting State - Players waiting for round */}
-        {gameState === 'waiting' && !isAdmin && !roundEnded && !submitted && (
+        {gameState === 'waiting' && !isAdmin && !roundEnded && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <div className="text-center">
               {/* Game Lobby - Only show before submitting */}
