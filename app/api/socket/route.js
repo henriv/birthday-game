@@ -40,7 +40,9 @@ export async function POST(request) {
 
       case 'start-round':
         gameState.roundActive = true;
+        gameState.roundEnded = false;
         gameState.roundStartTime = Date.now();
+        // Reset responses but keep players
         gameState.players.forEach((p) => {
           p.response = '';
           p.submittedAt = null;

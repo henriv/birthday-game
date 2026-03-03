@@ -590,12 +590,10 @@ export default function BirthdayGame() {
 
             <button
               onClick={async () => {
-                await sendMessage('clear-players');
                 setRoundEnded(false);
                 setCorrectText('');
                 setCorrectTextInput('');
-                setPlayers([]);
-                // Immediately show organizer panel for next round setup
+                // Fetch fresh state - players stay in game
                 setTimeout(() => fetchGameState(), 100);
               }}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-shadow"
