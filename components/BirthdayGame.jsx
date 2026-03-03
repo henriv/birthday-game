@@ -589,12 +589,13 @@ export default function BirthdayGame() {
             </div>
 
             <button
-              onClick={async () => {
+              onClick={() => {
+                // Reset admin view to setup new round
                 setRoundEnded(false);
                 setCorrectText('');
                 setCorrectTextInput('');
-                // Fetch fresh state - players stay in game
-                setTimeout(() => fetchGameState(), 100);
+                // Fetch fresh state
+                fetchGameState();
               }}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-shadow"
             >
