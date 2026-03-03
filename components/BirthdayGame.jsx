@@ -11,6 +11,7 @@ export default function BirthdayGame() {
   const [correctText, setCorrectText] = useState('');
   const [correctTextInput, setCorrectTextInput] = useState('');
   const [roundActive, setRoundActive] = useState(false);
+  const [roundEnded, setRoundEnded] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(180);
@@ -145,6 +146,7 @@ export default function BirthdayGame() {
   // Handle end round
   const handleEndRound = () => {
     sendMessage('end-round');
+    setRoundEnded(true);
   };
 
   // Handle reset game
@@ -154,6 +156,7 @@ export default function BirthdayGame() {
     setGameState('welcome');
     setPlayers([]);
     setCorrectText('');
+    setRoundEnded(false);
   };
 
   // Format time
@@ -402,7 +405,7 @@ export default function BirthdayGame() {
         )}
 
         {/* Leaderboard */}
-        {!roundActive && players.length > 0 && gameState === 'waiting' && (
+        {roundEnded && players.length > 0 && gameState === 'waiting' && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <div className="text-6xl text-center">🏆</div>
             <h2 className="text-3xl font-bold text-gray-800 text-center">Results!</h2>
