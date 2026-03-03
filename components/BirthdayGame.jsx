@@ -91,6 +91,66 @@ export default function BirthdayGame() {
     };
   }, [roundActive]);
 
+  // Trigger confetti animation when round ends for players
+  useEffect(() => {
+    if (roundEnded && players.length > 0 && !isAdmin) {
+      setTimeout(() => {
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '9999';
+        document.body.appendChild(canvas);
+
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const confetti = [];
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE'];
+
+        for (let i = 0; i < 100; i++) {
+          confetti.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            vx: (Math.random() - 0.5) * 8,
+            vy: Math.random() * 5 + 5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: Math.random() * 8 + 4,
+          });
+        }
+
+        const animate = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          let hasMore = false;
+
+          confetti.forEach((p) => {
+            if (p.y < canvas.height) {
+              hasMore = true;
+              p.x += p.vx;
+              p.y += p.vy;
+              p.vy += 0.2;
+
+              ctx.fillStyle = p.color;
+              ctx.fillRect(p.x, p.y, p.size, p.size);
+            }
+          });
+
+          if (hasMore) {
+            requestAnimationFrame(animate);
+          } else {
+            canvas.remove();
+          }
+        };
+
+        animate();
+      }, 300);
+    }
+  }, [roundEnded, isAdmin, players.length]);
+
   // Send message to API
   const sendMessage = async (type, data) => {
     try {
