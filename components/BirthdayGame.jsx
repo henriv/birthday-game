@@ -45,7 +45,7 @@ export default function BirthdayGame() {
 
     pollingRef.current = setInterval(() => {
       fetchGameState();
-    }, 500); // Poll every 500ms
+    }, 300); // Poll every 300ms for faster updates during round
 
     return () => {
       if (pollingRef.current) {
@@ -151,7 +151,8 @@ export default function BirthdayGame() {
     setTimeout(() => {
       sendMessage('clear-players');
       setPlayers([]);
-    }, 3000); // Wait 3 seconds to show results, then clear
+      setRoundEnded(false);
+    }, 8000); // Wait 8 seconds to show leaderboard, then clear
   };
 
   // Handle reset game
@@ -381,11 +382,20 @@ export default function BirthdayGame() {
 
               {roundActive && (
                 <div className="bg-red-100 border-2 border-red-500 rounded-lg p-4 text-center">
-                  <p className="text-red-800 font-bold">Round is ACTIVE</p>
-                  <div className="mt-4 space-y-2 max-h-40 overflow-y-auto">
+                  <p className="text-red-800 font-bold mb-4">🔴 Round is ACTIVE</p>
+                  <div className="space-y-2 max-h-48 overflow-y-auto mb-4">
+                    <h4 className="font-bold text-gray-700 text-left">Player Status:</h4>
                     {players.map((p) => (
-                      <div key={p.id} className={`p-2 rounded font-semibold ${p.submittedAt ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
-                        {p.name}: {p.submittedAt ? '✓ Submitted' : '⏳ Typing...'}
+                      <div
+                        key={p.id}
+                        className={`p-3 rounded font-semibold text-left flex items-center justify-between ${
+                          p.submittedAt
+                            ? 'bg-green-200 text-green-800 border-2 border-green-500'
+                            : 'bg-yellow-200 text-yellow-800 border-2 border-yellow-500'
+                        }`}
+                      >
+                        <span>{p.name}</span>
+                        <span>{p.submittedAt ? '✅ SUBMITTED' : '⏳ TYPING...'}</span>
                       </div>
                     ))}
                   </div>
