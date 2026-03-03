@@ -25,6 +25,9 @@ export default function BirthdayGame() {
 
   const ORGANIZER_PIN = '1234';
 
+  // Track player updates for re-rendering
+  const [playerUpdateKey, setPlayerUpdateKey] = useState(0);
+
   // Fetch game state from API
   const fetchGameState = async () => {
     try {
@@ -34,6 +37,7 @@ export default function BirthdayGame() {
       setCorrectText(data.correctText);
       setRoundActive(data.roundActive);
       setRoundStartTime(data.roundStartTime);
+      setPlayerUpdateKey(prev => prev + 1); // Force re-render
     } catch (error) {
       console.error('Fetch error:', error);
     }
@@ -364,7 +368,7 @@ export default function BirthdayGame() {
         )}
 
         {/* Organizer Panel */}
-        {gameState === 'organizer-setup' && isAdmin && (
+        {gameState === 'organizer-setup' && isAdmin && !roundEnded && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <h2 className="text-3xl font-bold text-gray-800 text-center">🎮 Organizer Panel</h2>
 
@@ -418,20 +422,26 @@ export default function BirthdayGame() {
                 <div className="bg-red-100 border-2 border-red-500 rounded-lg p-4 text-center">
                   <p className="text-red-800 font-bold mb-4">🔴 Round is ACTIVE</p>
                   <div className="space-y-2 max-h-48 overflow-y-auto mb-4">
-                    <h4 className="font-bold text-gray-700 text-left">Player Status:</h4>
-                    {players.map((p) => (
-                      <div
-                        key={p.id}
-                        className={`p-3 rounded font-semibold text-left flex items-center justify-between ${
-                          p.submittedAt
-                            ? 'bg-green-200 text-green-800 border-2 border-green-500'
-                            : 'bg-yellow-200 text-yellow-800 border-2 border-yellow-500'
-                        }`}
-                      >
-                        <span>{p.name}</span>
-                        <span>{p.submittedAt ? '✅ SUBMITTED' : '⏳ TYPING...'}</span>
-                      </div>
-                    ))}
+                    <h4 className="font-bold text-gray-700 text-left">Player Status (Live):</h4>
+                    {players && players.length > 0 ? (
+                      players.map((p) => (
+                        <div
+                          key={`${p.id}-${p.submittedAt}`}
+                          className={`p-3 rounded font-semibold text-left flex items-center justify-between transition-all ${
+                            p.submittedAt
+                              ? 'bg-green-200 text-green-800 border-2 border-green-500'
+                              : 'bg-yellow-200 text-yellow-800 border-2 border-yellow-500'
+                          }`}
+                        >
+                          <span>{p.name}</span>
+                          <span className="text-sm">
+                            {p.submittedAt ? `✅ SUBMITTED (${new Date(p.submittedAt).getSeconds()}s)` : '⏳ TYPING...'}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-600">No players yet</p>
+                    )}
                   </div>
                   <button
                     onClick={handleEndRound}
@@ -454,7 +464,7 @@ export default function BirthdayGame() {
         )}
 
         {/* Leaderboard - Show to PLAYERS after round ends */}
-        {roundEnded && players.length > 0 && !isAdmin && gameState === 'waiting' && (
+        {roundEnded && players.length > 0 && !isAdmin && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <div className="text-6xl text-center">🏆</div>
             <h2 className="text-3xl font-bold text-gray-800 text-center">Round Results!</h2>
@@ -497,7 +507,7 @@ export default function BirthdayGame() {
         )}
 
         {/* Results View - Show to ADMIN only after round ends */}
-        {roundEnded && players.length > 0 && isAdmin && gameState === 'organizer-setup' && (
+        {roundEnded && players.length > 0 && isAdmin && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <div className="text-6xl text-center">🏆</div>
             <h2 className="text-3xl font-bold text-gray-800 text-center">Round Results</h2>
