@@ -43,16 +43,18 @@ export default function BirthdayGame() {
   useEffect(() => {
     fetchGameState();
 
+    // Poll faster during active rounds
+    const interval = roundActive ? 200 : 500;
     pollingRef.current = setInterval(() => {
       fetchGameState();
-    }, 300); // Poll every 300ms for faster updates during round
+    }, interval);
 
     return () => {
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
       }
     };
-  }, []);
+  }, [roundActive]);
 
   // Reset submitted state when new round starts
   useEffect(() => {
@@ -422,8 +424,8 @@ export default function BirthdayGame() {
           </div>
         )}
 
-        {/* Leaderboard - Show to EVERYONE after round ends */}
-        {roundEnded && players.length > 0 && (
+        {/* Leaderboard - Show to PLAYERS after round ends */}
+        {roundEnded && players.length > 0 && !isAdmin && gameState === 'waiting' && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <div className="text-6xl text-center">🏆</div>
             <h2 className="text-3xl font-bold text-gray-800 text-center">Round Results!</h2>
@@ -461,20 +463,61 @@ export default function BirthdayGame() {
                 ))}
             </div>
 
-            {isAdmin && (
-              <button
-                onClick={() => {
-                  sendMessage('clear-players');
-                  setRoundEnded(false);
-                  setCorrectText('');
-                  setCorrectTextInput('');
-                  setPlayers([]);
-                }}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-shadow"
-              >
-                Start New Round 🎬
-              </button>
-            )}
+            <p className="text-center text-gray-600 text-sm">Waiting for organizer to start next round...</p>
+          </div>
+        )}
+
+        {/* Results View - Show to ADMIN only after round ends */}
+        {roundEnded && players.length > 0 && isAdmin && gameState === 'organizer-setup' && (
+          <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
+            <div className="text-6xl text-center">🏆</div>
+            <h2 className="text-3xl font-bold text-gray-800 text-center">Round Results</h2>
+
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <p className="font-bold text-gray-700 mb-2">Correct Text:</p>
+              <p className="text-lg text-gray-800 italic">"{correctText}"</p>
+            </div>
+
+            <div className="space-y-3">
+              {[...players]
+                .sort((a, b) => {
+                  if (a.errors !== b.errors) return a.errors - b.errors;
+                  return (a.submittedAt || Infinity) - (b.submittedAt || Infinity);
+                })
+                .map((player, idx) => (
+                  <div
+                    key={player.id}
+                    className={`flex items-center justify-between p-4 rounded-lg ${
+                      idx === 0
+                        ? 'bg-yellow-200'
+                        : idx === 1
+                        ? 'bg-gray-200'
+                        : idx === 2
+                        ? 'bg-orange-200'
+                        : 'bg-gray-100'
+                    }`}
+                  >
+                    <div>
+                      <p className="font-bold text-gray-800">#{idx + 1} {player.name}</p>
+                      <p className="text-sm text-gray-600">Errors: {player.errors}</p>
+                    </div>
+                    <p className="text-2xl font-bold">{calculateScore(player)} pts</p>
+                  </div>
+                ))}
+            </div>
+
+            <button
+              onClick={() => {
+                sendMessage('clear-players');
+                setRoundEnded(false);
+                setCorrectText('');
+                setCorrectTextInput('');
+                setPlayers([]);
+              }}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-shadow"
+            >
+              Start New Round 🎬
+            </button>
           </div>
         )}
       </div>
