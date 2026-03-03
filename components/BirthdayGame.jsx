@@ -155,12 +155,7 @@ export default function BirthdayGame() {
   const handleEndRound = () => {
     sendMessage('end-round');
     setRoundEnded(true);
-    // Auto-clear players after showing results
-    setTimeout(() => {
-      sendMessage('clear-players');
-      setPlayers([]);
-      setRoundEnded(false);
-    }, 8000); // Wait 8 seconds to show leaderboard, then clear
+    // Leaderboard stays until admin starts new round
   };
 
   // Handle reset game
@@ -427,11 +422,11 @@ export default function BirthdayGame() {
           </div>
         )}
 
-        {/* Leaderboard */}
-        {roundEnded && players.length > 0 && gameState === 'waiting' && (
+        {/* Leaderboard - Show to EVERYONE after round ends */}
+        {roundEnded && players.length > 0 && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <div className="text-6xl text-center">🏆</div>
-            <h2 className="text-3xl font-bold text-gray-800 text-center">Results!</h2>
+            <h2 className="text-3xl font-bold text-gray-800 text-center">Round Results!</h2>
 
             <div className="bg-gray-50 p-4 rounded-lg mb-6">
               <p className="font-bold text-gray-700 mb-2">Correct Text:</p>
@@ -465,6 +460,21 @@ export default function BirthdayGame() {
                   </div>
                 ))}
             </div>
+
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  sendMessage('clear-players');
+                  setRoundEnded(false);
+                  setCorrectText('');
+                  setCorrectTextInput('');
+                  setPlayers([]);
+                }}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-shadow"
+              >
+                Start New Round 🎬
+              </button>
+            )}
           </div>
         )}
       </div>
