@@ -1,0 +1,40 @@
+{
+  "gameTexts": [
+    {
+      "id": 1,
+      "text": "The quick brown fox jumps over the lazy dog",
+      "difficulty": "easy",
+      "hint": "A classic pangram"
+    },
+    {
+      "id": 2,
+      "text": "She sells seashells by the seashore",
+      "difficulty": "easy",
+      "hint": "A tongue twister"
+    },
+    {
+      "id": 3,
+      "text": "Peter Piper picked a peck of pickled peppers",
+      "difficulty": "medium",
+      "hint": "Another tongue twister"
+    },
+    {
+      "id": 4,
+      "text": "How much wood would a woodchuck chuck if a woodchuck could chuck wood",
+      "difficulty": "medium",
+      "hint": "A challenging phrase"
+    },
+    {
+      "id": 5,
+      "text": "Unique New York you need New York",
+      "difficulty": "hard",
+      "hint": "Try saying it fast"
+    },
+    {
+      "id": 6,
+      "text": "The sixth sick Sheikh's sixth sheep's sick",
+      "difficulty": "hard",
+      "hint": "Very tricky"
+    }
+  ]
+}
