@@ -471,10 +471,10 @@ export default function BirthdayGame() {
 
             <div className="bg-gray-50 p-4 rounded-lg mb-6">
               <p className="font-bold text-gray-700 mb-2">Correct Text:</p>
-              <p className="text-lg text-gray-800 italic">"{correctText}"</p>
+              <p className="text-lg text-gray-800 italic font-mono">"{correctText}"</p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {[...players]
                 .sort((a, b) => {
                   if (a.errors !== b.errors) return a.errors - b.errors;
@@ -483,21 +483,41 @@ export default function BirthdayGame() {
                 .map((player, idx) => (
                   <div
                     key={player.id}
-                    className={`flex items-center justify-between p-4 rounded-lg ${
+                    className={`p-4 rounded-lg space-y-2 ${
                       idx === 0
-                        ? 'bg-yellow-200'
+                        ? 'bg-yellow-100 border-2 border-yellow-400'
                         : idx === 1
-                        ? 'bg-gray-200'
+                        ? 'bg-gray-100 border-2 border-gray-400'
                         : idx === 2
-                        ? 'bg-orange-200'
-                        : 'bg-gray-100'
+                        ? 'bg-orange-100 border-2 border-orange-400'
+                        : 'bg-gray-50 border-2 border-gray-200'
                     }`}
                   >
-                    <div>
-                      <p className="font-bold text-gray-800">#{idx + 1} {player.name}</p>
-                      <p className="text-sm text-gray-600">Errors: {player.errors}</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-gray-800">#{idx + 1} {player.name}</p>
+                        <p className="text-sm text-gray-600">Errors: {player.errors}</p>
+                      </div>
+                      <p className="text-2xl font-bold text-gray-800">{calculateScore(player)} pts</p>
                     </div>
-                    <p className="text-2xl font-bold">{calculateScore(player)} pts</p>
+
+                    {/* Show player's response with mistakes */}
+                    <div className="mt-3 pt-3 border-t border-gray-300 space-y-2">
+                      <p className="text-xs font-bold text-gray-600">YOUR RESPONSE:</p>
+                      <div className="bg-white p-3 rounded border-2 border-red-300">
+                        <p className="font-mono text-sm relative">
+                          {/* Strikethrough response */}
+                          <span className="inline-block relative">
+                            {player.response || '(no response)'}
+                            <span className="absolute left-0 top-1/2 w-full h-0.5 bg-red-500"></span>
+                          </span>
+                        </p>
+                        {/* Correct text above */}
+                        <p className="font-mono text-sm text-green-700 font-bold mt-1">
+                          ✓ {correctText}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ))}
             </div>
