@@ -147,6 +147,11 @@ export default function BirthdayGame() {
   const handleEndRound = () => {
     sendMessage('end-round');
     setRoundEnded(true);
+    // Auto-clear players after showing results
+    setTimeout(() => {
+      sendMessage('clear-players');
+      setPlayers([]);
+    }, 3000); // Wait 3 seconds to show results, then clear
   };
 
   // Handle reset game
