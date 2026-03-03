@@ -79,6 +79,7 @@ export async function POST(request) {
 
       case 'clear-players':
         gameState.players = [];
+        gameState.roundEnded = false; // Reset for new round
         return NextResponse.json({ success: true });
 
       case 'get-state':

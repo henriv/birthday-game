@@ -567,12 +567,14 @@ export default function BirthdayGame() {
             </div>
 
             <button
-              onClick={() => {
-                sendMessage('clear-players');
+              onClick={async () => {
+                await sendMessage('clear-players');
                 setRoundEnded(false);
                 setCorrectText('');
                 setCorrectTextInput('');
                 setPlayers([]);
+                // Fetch fresh state from API
+                setTimeout(() => fetchGameState(), 100);
               }}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-shadow"
             >
