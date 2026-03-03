@@ -94,7 +94,16 @@ export default function BirthdayGame() {
   // Trigger confetti animation when round ends for players
   useEffect(() => {
     if (roundEnded && players.length > 0 && !isAdmin) {
-      setTimeout(() => {
+      // Find winner (first in sorted list)
+      const sortedPlayers = [...players].sort((a, b) => {
+        if (a.errors !== b.errors) return a.errors - b.errors;
+        return (a.submittedAt || Infinity) - (b.submittedAt || Infinity);
+      });
+      const winner = sortedPlayers[0];
+      const isWinner = winner && winner.name === currentPlayerName;
+
+      // Only show confetti if this player won
+      if (isWinner) {
         const canvas = document.createElement('canvas');
         canvas.style.position = 'fixed';
         canvas.style.top = '0';
@@ -148,6 +157,7 @@ export default function BirthdayGame() {
 
         animate();
       }, 300);
+      }
     }
   }, [roundEnded, isAdmin, players.length]);
 
