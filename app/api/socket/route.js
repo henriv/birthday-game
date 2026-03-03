@@ -48,7 +48,8 @@ export async function POST(request) {
         return NextResponse.json({ success: true });
 
       case 'submit-answer':
-        const player = gameState.players.find((p) => p.id === playerId);
+        const { playerName: submitPlayerName } = body;
+        const player = gameState.players.find((p) => p.name === submitPlayerName);
         if (player) {
           player.response = response;
           player.submittedAt = Date.now();
@@ -71,6 +72,11 @@ export async function POST(request) {
 
       case 'end-round':
         gameState.roundActive = false;
+        // Don't clear players yet - let leaderboard show them
+        return NextResponse.json({ success: true });
+
+      case 'clear-players':
+        gameState.players = [];
         return NextResponse.json({ success: true });
 
       case 'get-state':

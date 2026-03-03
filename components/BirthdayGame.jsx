@@ -17,6 +17,7 @@ export default function BirthdayGame() {
   const [countdownSeconds, setCountdownSeconds] = useState(180);
   const [isAdmin, setIsAdmin] = useState(false);
   const [currentPlayerId, setCurrentPlayerId] = useState(null);
+  const [currentPlayerName, setCurrentPlayerName] = useState(null);
   const [roundStartTime, setRoundStartTime] = useState(null);
 
   const textInputRef = useRef(null);
@@ -122,8 +123,7 @@ export default function BirthdayGame() {
   // Handle player join
   const handlePlayerJoin = () => {
     if (!playerName.trim()) return;
-    const playerId = Date.now();
-    setCurrentPlayerId(playerId);
+    setCurrentPlayerName(playerName); // Save the player name
     sendMessage('register-player', { playerName });
     setGameState('waiting');
     setPlayerName('');
@@ -152,7 +152,7 @@ export default function BirthdayGame() {
   // Handle submit answer
   const handleSubmitResponse = () => {
     if (!userInput.trim() || !roundActive) return;
-    sendMessage('submit-answer', { response: userInput, playerId: currentPlayerId });
+    sendMessage('submit-answer', { response: userInput, playerName: currentPlayerName });
     setUserInput('');
     setSubmitted(true);
   };
