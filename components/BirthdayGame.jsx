@@ -104,7 +104,8 @@ export default function BirthdayGame() {
 
       // Only show confetti if this player won
       if (isWinner) {
-        const canvas = document.createElement('canvas');
+        setTimeout(() => {
+          const canvas = document.createElement('canvas');
         canvas.style.position = 'fixed';
         canvas.style.top = '0';
         canvas.style.left = '0';
