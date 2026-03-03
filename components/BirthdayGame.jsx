@@ -590,12 +590,14 @@ export default function BirthdayGame() {
 
             <button
               onClick={() => {
-                // Reset admin view to setup new round
+                // Send new-round message to API
+                sendMessage('new-round');
+                // Reset admin local state
                 setRoundEnded(false);
                 setCorrectText('');
                 setCorrectTextInput('');
                 // Fetch fresh state
-                fetchGameState();
+                setTimeout(() => fetchGameState(), 200);
               }}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-shadow"
             >

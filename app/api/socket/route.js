@@ -79,6 +79,19 @@ export async function POST(request) {
         // Don't clear players yet - let leaderboard show them
         return NextResponse.json({ success: true });
 
+      case 'new-round':
+        gameState.roundActive = false;
+        gameState.roundEnded = false;
+        gameState.correctText = '';
+        gameState.roundStartTime = null;
+        // Keep players but clear their responses
+        gameState.players.forEach((p) => {
+          p.response = '';
+          p.submittedAt = null;
+          p.errors = 0;
+        });
+        return NextResponse.json({ success: true });
+
       case 'clear-players':
         gameState.players = [];
         gameState.roundEnded = false; // Reset for new round
