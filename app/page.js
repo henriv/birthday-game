@@ -1,6 +1,6 @@
 'use client';
 
-import BirthdayGame from '@/components/BirthdayGame';
+import BirthdayGame from '../components/BirthdayGame';
 
 export default function Home() {
   return <BirthdayGame />;
