@@ -37,6 +37,7 @@ export default function BirthdayGame() {
       setPlayers(data.players);
       setCorrectText(data.correctText);
       setRoundActive(data.roundActive);
+      setRoundEnded(data.roundEnded); // Get from API
       setRoundStartTime(data.roundStartTime);
       setPlayerUpdateKey(prev => prev + 1); // Force re-render
     } catch (error) {

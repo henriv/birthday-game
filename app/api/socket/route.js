@@ -6,6 +6,7 @@ let gameState = {
   players: [],
   correctText: '',
   roundActive: false,
+  roundEnded: false,
   roundStartTime: null,
 };
 
@@ -72,6 +73,7 @@ export async function POST(request) {
 
       case 'end-round':
         gameState.roundActive = false;
+        gameState.roundEnded = true;
         // Don't clear players yet - let leaderboard show them
         return NextResponse.json({ success: true });
 
@@ -92,6 +94,7 @@ export async function POST(request) {
           players: [],
           correctText: '',
           roundActive: false,
+          roundEnded: false,
           roundStartTime: null,
         };
         return NextResponse.json({ success: true });
@@ -110,6 +113,7 @@ export async function GET() {
     players: gameState.players,
     correctText: gameState.correctText,
     roundActive: gameState.roundActive,
+    roundEnded: gameState.roundEnded,
     roundStartTime: gameState.roundStartTime,
   });
 }
