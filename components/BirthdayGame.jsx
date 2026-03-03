@@ -54,8 +54,13 @@ export default function BirthdayGame() {
     };
   }, []);
 
-  // Countdown timer
+  // Reset submitted state when new round starts
   useEffect(() => {
+    if (roundActive) {
+      setSubmitted(false);
+      setUserInput('');
+    }
+  }, [roundActive]);
     if (!roundActive) return;
 
     if (!countdownRef.current) {
@@ -132,7 +137,7 @@ export default function BirthdayGame() {
       return;
     }
     sendMessage('start-round');
-    setSubmitted(false);
+    setSubmitted(false); // Reset submitted state for all players
   };
 
   // Handle submit answer
