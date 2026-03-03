@@ -325,9 +325,38 @@ export default function BirthdayGame() {
               )}
 
               {submitted && (
-                <div className="bg-green-100 border-2 border-green-500 rounded-lg p-4">
-                  <p className="text-green-800 font-bold">✓ Answer submitted!</p>
-                  <p className="text-sm text-green-700">Waiting for other players...</p>
+                <div className="bg-green-100 border-2 border-green-500 rounded-lg p-6 text-center space-y-4">
+                  <p className="text-green-800 font-bold text-lg">✓ Answer submitted!</p>
+                  
+                  {/* Random fun GIFs while waiting */}
+                  <div className="flex justify-center">
+                    <img 
+                      src={[
+                        'https://media.giphy.com/media/3o85xIO33l7RlmLuFO/giphy.gif',
+                        'https://media.giphy.com/media/g9aZ66K8KO7wI/giphy.gif',
+                        'https://media.giphy.com/media/xT9IgEx8SbQ0teblYQ/giphy.gif',
+                        'https://media.giphy.com/media/l0HlTy9x8FZo0XO1i/giphy.gif',
+                        'https://media.giphy.com/media/3ohzdKdb7房Kz0B9nwc/giphy.gif',
+                        'https://media.giphy.com/media/3o6Zt6KHxJTbXCnSvu/giphy.gif',
+                        'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif',
+                        'https://media.giphy.com/media/L95W4z3PpJGAU/giphy.gif',
+                      ][Math.floor(Math.random() * 8)]}
+                      alt="waiting"
+                      className="w-32 h-32 rounded-lg"
+                    />
+                  </div>
+
+                  {/* Spinner */}
+                  <div className="flex justify-center">
+                    <div className="animate-spin">
+                      <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <p className="text-green-700 font-semibold">Waiting for organizer to close the round...</p>
                 </div>
               )}
             </div>
@@ -535,6 +564,18 @@ export default function BirthdayGame() {
         }
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .animate-spin {
+          animation: spin 2s linear infinite;
         }
       `}</style>
     </div>
