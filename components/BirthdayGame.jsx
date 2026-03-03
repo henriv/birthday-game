@@ -62,13 +62,12 @@ export default function BirthdayGame() {
     };
   }, [roundActive]);
 
-  // Reset submitted state when new round starts
+  // Reset submitted state when round ends/starts
   useEffect(() => {
-    if (roundActive) {
+    if (!roundEnded) {
       setSubmitted(false);
-      setUserInput('');
     }
-  }, [roundActive]);
+  }, [roundEnded]);
   useEffect(() => {
     if (!roundActive) return;
 
@@ -277,7 +276,10 @@ export default function BirthdayGame() {
         {gameState === 'waiting' && !isAdmin && !roundEnded && !submitted && (
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-fade-in">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Game Lobby 🎮</h2>
+              {/* Game Lobby - Only show before submitting */}
+              {!submitted && (
+                <>
+                  <h2 className="text-3xl font-bold text-gray-800 mb-4">Game Lobby 🎮</h2>
 
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 <h3 className="font-bold text-gray-700 mb-3 flex items-center justify-center gap-2">
@@ -292,10 +294,12 @@ export default function BirthdayGame() {
                 </div>
               </div>
 
-              {!roundActive && (
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-                  <p className="text-gray-700 font-semibold">⏳ Waiting for organizer to start...</p>
-                </div>
+                  {!roundActive && (
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                      <p className="text-gray-700 font-semibold">⏳ Waiting for organizer to start...</p>
+                    </div>
+                  )}
+                </>
               )}
 
               {roundActive && !submitted && (
@@ -591,7 +595,7 @@ export default function BirthdayGame() {
                 setCorrectText('');
                 setCorrectTextInput('');
                 setPlayers([]);
-                // Fetch fresh state from API
+                // Immediately show organizer panel for next round setup
                 setTimeout(() => fetchGameState(), 100);
               }}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-shadow"
